@@ -248,6 +248,7 @@ class ReorderableSliverList extends StatefulWidget {
     this.onDragEnd,
     this.enabled = true,
     this.controller,
+    this.spacing = 0
     Key? key,
   }) : super(key: key);
 
@@ -552,17 +553,25 @@ class _ReorderableSliverListState extends State<ReorderableSliverList>
   // Wraps children in Row or Column, so that the children flow in
   // the widget's scrollDirection.
   Widget _buildContainerForMainAxis({required List<Widget> children}) {
-    var column = Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: children);
-    return column;
-//    return SingleChildScrollView(
-//      child:column,
-//      primary: false,
-//    );
+    // Nếu bạn muốn giữa mỗi phần tử đều có SizedBox(height: widget.spacing),
+    // ta duyệt qua children và chèn thêm SizedBox.
+    if (widget.spacing > 0 && children.length > 1) {
+      final spacedChildren = <Widget>[];
+      for (int i = 0; i < children.length; i++) {
+        spacedChildren.add(children[i]);
+        if (i < children.length - 1) {
+          // Chèn thêm một SizedBox với chiều cao = widget.spacing
+          spacedChildren.add(SizedBox(height: widget.spacing));
+        }
+      }
+      children = spacedChildren;
+    }
 
-//    return Column(mainAxisSize: MainAxisSize.min, children: children, mainAxisAlignment: widget.mainAxisAlignment);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children,
+    );
   }
 
   Widget _wrap(Widget toWrap, int index) {
